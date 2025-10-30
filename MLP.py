@@ -45,8 +45,9 @@ class MLP:
         z (array_like): activation signal received by the layer.
     """
     def _sigmoid(self,z):
-        ##TO-DO
-        return 0
+        el = np.exp(-z)
+        dev = (1/(1+el))
+        return dev
 
     """
     Computes de sigmoid derivation of de activation (private)
@@ -70,10 +71,17 @@ class MLP:
     z2,z3 (array_like): signal fuction of two last layers
     """
     def feedforward(self,x):
-        a1,a2,a3,z2,z3 = 0
-        ##TO-DO
+        a1 = x
+        X1s = np.hstack([np.ones((self._size(a1), 1)), a1])
+        X1s = np.transpose(X1s)
+        z2 = self.theta1 @ X1s
+        a2 = self._sigmoid(z2)
+        X2s = np.transpose(a2)
+        X2s = np.hstack([np.ones((self._size(X2s), 1)), X2s])
+        X2s = np.transpose(X2s)
+        z3 = self.theta2 @ X2s
+        a3 = self._sigmoid(z3)
         return a1,a2,a3,z2,z3 # devolvemos a parte de las activaciones, los valores sin ejecutar la función de activación
-
 
     """
     Computes only the cost of a previously generated output (private)
@@ -88,9 +96,17 @@ class MLP:
 	J (scalar): the cost.
     """
     def compute_cost(self, yPrime,y, lambda_): # es una función interna por eso empieza por _
-        ##TO-DO
-        J = 0
-        return J
+        p1 = y * np.log(yPrime)
+        p2 = (1 - y) * (np.log((1-yPrime)))
+
+        su = p1+p2
+        su = np.sum(su,axis=0).tolist()
+        m = np.size(su)
+
+        sum = np.sum(su)
+
+        dev = (-1/m) * sum
+        return dev
     
 
     """
@@ -104,8 +120,7 @@ class MLP:
 	p (scalar): the class index with the highest activation value.
     """
     def predict(self,a3):
-        ##TO-DO
-        p = 0
+        p = np.argmax(a3,axis=0)
         return p
     
 

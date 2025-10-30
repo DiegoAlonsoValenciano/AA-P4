@@ -45,15 +45,52 @@ def load_weights(file):
     return theta1, theta2
 
 def one_hot_encoding(Y):
-    YEnc = 0
-    #TO-DO: implements
+    #yRe = np.reshape(Y,shape=(-1,1))
+    enc = OneHotEncoder(sparse_output=False)
+    YEnc =enc.fit_transform(Y.reshape(-1,1))
+    YEnc = YEnc.T
     return YEnc
 
 def accuracy(P,Y):
 	#TO-DO: implements
-	return -1
+    a =0
+    for i in range(P.shape[0]):
+        if P[i] == Y[i]:
+            a = a+1
+        
+    s = a/np.size(Y)
 
+    return s
 
+def confusionMatrix(P,Y):
+    TP=0
+    FP=0
+    TN=0
+    FN=0
+    for x in range(0,np.size(P)):
+        if P[x] == Y[x] and Y[x] == 0:
+            TP += 1
+        elif P[x] == Y[x] and Y[x] != 0:
+            TN += 1
+        elif Y[x] == 0:
+            FN += 1
+        else:
+            FP += 1
+
+    cm=np.array([[TP,FP],[FN,TN]])
+    return cm
+
+def precission(CM):
+    pr = CM[0][0]/(CM[0][0]+CM[0][1])
+    return pr
+
+def recall(CM):
+    rc = CM[0][0]/(CM[0][0]+CM[1][0])
+    return rc
+
+def F1_Score(pr,rc):
+    f1 = 2*((pr*rc)/(pr+rc))
+    return f1
 ###########################################################################
 # gradient checking
 #
