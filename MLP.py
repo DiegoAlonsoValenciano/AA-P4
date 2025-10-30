@@ -17,6 +17,11 @@ class MLP:
     def __init__(self,inputLayer,hidenLayer, outputLayer, seed=0, epislom = 0.12):
         np.random.seed(seed)
         ## TO-DO
+        self.inputLayer = inputLayer
+        self.hidenLayer = hidenLayer
+        self.outputLayer = outputLayer
+        self.theta1 = np.random.randint(-epislom,epislom,size=(inputLayer+1,hidenLayer))
+        self.theta2 = np.random.randint(-epislom,epislom,size=(hidenLayer+1,outputLayer))
 
         """
     Reset the theta matrix created in the constructor by both theta matrix manualy loaded.
@@ -106,6 +111,7 @@ class MLP:
         sum = np.sum(su)
 
         dev = (-1/m) * sum
+        dev = dev + self._regularizationL2Cost(m,lambda_)
         return dev
     
 
@@ -172,8 +178,15 @@ class MLP:
     """
 
     def _regularizationL2Cost(self, m, lambda_):
-        ##TO-DO
-        return 0
+        teta1 = np.sum(self.theta1,axis=0)
+        teta1 = np.sum(teta1)
+
+        teta2 = np.sum(self.theta2,axis=0)
+        teta2 = np.sum(teta2)
+
+        su = teta1+teta2
+        L2 = lambda_*(1/(2*m)) * su
+        return L2
     
     
     def backpropagation(self, x, y, alpha, lambda_, numIte, verbose=0):
