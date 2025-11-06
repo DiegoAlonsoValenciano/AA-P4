@@ -151,7 +151,7 @@ class MLP:
         g2 = self._sigmoidPrime(a2)
         dlt2 = self.theta2*dlt3*g2
         dlt2 = np.sum(dlt2,axis=0)
-        g1 = self._sigmoidPrime(a2)
+        g1 = self._sigmoidPrime(a1)
         dlt1 = self.theta1*dlt2*g1
         dlt1 = np.sum(dlt1,axis=0)
         ##TO-DO
