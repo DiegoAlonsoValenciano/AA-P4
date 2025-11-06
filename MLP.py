@@ -20,8 +20,8 @@ class MLP:
         self.inputLayer = inputLayer
         self.hidenLayer = hidenLayer
         self.outputLayer = outputLayer
-        self.theta1 = np.random.randint(-epislom,epislom,size=(inputLayer+1,hidenLayer))
-        self.theta2 = np.random.randint(-epislom,epislom,size=(hidenLayer+1,outputLayer))
+        self.theta1 = np.random.uniform(-epislom,epislom,size=(inputLayer+1,hidenLayer))
+        self.theta2 = np.random.uniform(-epislom,epislom,size=(hidenLayer+1,outputLayer))
 
         """
     Reset the theta matrix created in the constructor by both theta matrix manualy loaded.
@@ -61,8 +61,8 @@ class MLP:
         a (array_like): activation received by the layer.
     """   
     def _sigmoidPrime(self,a):
-        ##TO-DO
-        return 0
+        gp = a*(1-a)
+        return gp
 
     """
     Run the feedwordwar neural network step
@@ -144,8 +144,23 @@ class MLP:
     grad1, grad2: the gradient matrix (same shape than theta1 and theta2)
     """
     def compute_gradients(self, x, y, lambda_):
+        a1,a2,a3,z2,z3 = self.feedforward(x)
+        yp = self.predict(a3)
+        J = self.compute_cost(yp,y,lambda_)
+        dlt3 = yp-y
+        g2 = self._sigmoidPrime(a2)
+        dlt2 = self.theta2*dlt3*g2
+        dlt2 = np.sum(dlt2,axis=0)
+        g1 = self._sigmoidPrime(a2)
+        dlt1 = self.theta1*dlt2*g1
+        dlt1 = np.sum(dlt1,axis=0)
         ##TO-DO
-        J,grad1,grad2 = 0
+        m1 = self._size(a1)
+        m2 = self._size(a2)
+        grad1 = (1/m1)*np.sum(dlt2*a1)
+        grad2 = (1/m2)*np.sum(dlt3*a2)
+        grad1 = grad1 + self._regularizationL2Gradient(self.theta1,lambda_,m1)
+        grad2 = grad2 + self._regularizationL2Gradient(self.theta2,lambda_,m2)
         return (J, grad1, grad2)
     
     """
