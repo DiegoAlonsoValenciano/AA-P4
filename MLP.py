@@ -20,8 +20,8 @@ class MLP:
         self.inputLayer = inputLayer
         self.hidenLayer = hidenLayer
         self.outputLayer = outputLayer
-        self.theta1 = np.random.uniform(-epislom,epislom,size=(inputLayer+1,hidenLayer))
-        self.theta2 = np.random.uniform(-epislom,epislom,size=(hidenLayer+1,outputLayer))
+        self.theta1 = np.random.uniform(-epislom,epislom,size=(hidenLayer,inputLayer+1))
+        self.theta2 = np.random.uniform(-epislom,epislom,size=(outputLayer,hidenLayer+1))
 
         """
     Reset the theta matrix created in the constructor by both theta matrix manualy loaded.
@@ -101,8 +101,8 @@ class MLP:
 	J (scalar): the cost.
     """
     def compute_cost(self, yPrime,y, lambda_): # es una función interna por eso empieza por _
-        p1 = y * np.log(yPrime)
-        p2 = (1 - y) * (np.log((1-yPrime)))
+        p1 = y @ np.log(yPrime)
+        p2 = (1 - y) @ (np.log((1-yPrime)))
 
         su = p1+p2
         su = np.sum(su,axis=0).tolist()
@@ -145,20 +145,19 @@ class MLP:
     """
     def compute_gradients(self, x, y, lambda_):
         a1,a2,a3,z2,z3 = self.feedforward(x)
-        yp = self.predict(a3)
-        J = self.compute_cost(yp,y,lambda_)
-        dlt3 = yp-y
+        J = self.compute_cost(a3,y,lambda_)
+        dlt3 = a3.T-y
         g2 = self._sigmoidPrime(a2)
-        dlt2 = self.theta2*dlt3*g2
-        dlt2 = np.sum(dlt2,axis=0)
+        teta2 = np.delete(self.theta2,0,axis=1)
+        dlt2 = teta2 @ g2 @ dlt3
         g1 = self._sigmoidPrime(a1)
-        dlt1 = self.theta1*dlt2*g1
-        dlt1 = np.sum(dlt1,axis=0)
+        teta1 = np.delete(self.theta1,0,axis=1)
+        dlt1 = teta1 @ dlt2 @ g1.T
         ##TO-DO
         m1 = self._size(a1)
         m2 = self._size(a2)
-        grad1 = (1/m1)*np.sum(dlt2*a1)
-        grad2 = (1/m2)*np.sum(dlt3*a2)
+        grad1 = (1/m1)*dlt2 @ a1.T
+        grad2 = (1/m2)*dlt3.T @ a2
         grad1 = grad1 + self._regularizationL2Gradient(self.theta1,lambda_,m1)
         grad2 = grad2 + self._regularizationL2Gradient(self.theta2,lambda_,m2)
         return (J, grad1, grad2)
@@ -176,8 +175,18 @@ class MLP:
 	L2 Gradient value
     """
     def _regularizationL2Gradient(self, theta, lambda_, m):
-        ##TO-DO
-        return 0
+
+        teta1 = np.delete(self.theta1,0,axis=1)
+        teta1 = np.sum(teta1,axis=0)
+        teta1 = np.sum(teta1)
+        
+        teta2 = np.delete(self.theta2,0,axis=1)
+        teta2 = np.sum(teta2,axis=0)
+        teta2 = np.sum(teta2)
+
+        su = teta1+teta2
+        L2 = lambda_*(1/m) * su
+        return L2
     
     
     """
@@ -193,10 +202,15 @@ class MLP:
     """
 
     def _regularizationL2Cost(self, m, lambda_):
-        teta1 = np.sum(self.theta1,axis=0)
+
+        teta1 = np.delete(self.theta1,0,axis=1)
+        teta1 = teta1 * teta1
+        teta1 = np.sum(teta1,axis=0)
         teta1 = np.sum(teta1)
 
-        teta2 = np.sum(self.theta2,axis=0)
+        teta2 = np.delete(self.theta2,0,axis=1)
+        teta2 = teta2 * teta2
+        teta2 = np.sum(teta2,axis=0)
         teta2 = np.sum(teta2)
 
         su = teta1+teta2

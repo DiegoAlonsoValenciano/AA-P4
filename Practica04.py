@@ -30,9 +30,9 @@ def MLP_test(X_train,y_train, X_test, y_test):
 def main():
 #TO-DO: calculate a testing a prediction and cost.
     print("Main program")
-    mlp = MLP(400,25,10)
+    
     #Test 1
-    #gradientTest()
+    gradientTest()
 
     ## TO-DO: descoment both test and create the needed code to execute them.
     
