@@ -121,7 +121,7 @@ class MLP:
 	p (scalar): the class index with the highest activation value.
     """
     def predict(self,a3):
-        p = np.argmax(a3,axis=0)
+        p = np.argmax(a3.T, axis=0)
         return p
     
 
@@ -174,19 +174,7 @@ class MLP:
 	L2 Gradient value
     """
     def _regularizationL2Gradient(self, theta, lambda_, m):
-        #teta1 = np.delete(self.theta1,0,axis=1)
-        #teta1 = np.sum(self.theta1,axis=0)
-        #teta1 = np.sum(teta1)
-        
-        #teta2 = np.delete(self.theta2,0,axis=1)
-        #teta2 = np.sum(self.theta2,axis=0)
-        #teta2 = np.sum(teta2)
-
-        #su = teta1+teta2
-
-        #teta = np.delete(theta,0,axis=1)
-        
-        print(theta[:,1:])
+        #print(theta[:,1:])
         L2 = theta[:,1:] * (lambda_/m)
         return L2
     
@@ -204,7 +192,6 @@ class MLP:
     """
 
     def _regularizationL2Cost(self, m, lambda_):
-
         t1 =self.theta1[:, 1:]
         t2= self.theta2[:, 1:]
         t1=t1**2

@@ -36,9 +36,13 @@ def main():
 
     ## TO-DO: descoment both test and create the needed code to execute them.
     x,y = load_data('data/ex3data1.mat')
+    x_train, x_test, y_train, y_test = train_test_split(x,y,test_size=0.33,random_state=0)
+
+    #Pasamos los datos de salida de entrenamiento a one hot encoding
+    y_train = one_hot_encoding(y_train)
 
     #Test 2
-    MLP_test()
+    MLP_test(x_train,y_train, x_test, y_test)
 
     
 
