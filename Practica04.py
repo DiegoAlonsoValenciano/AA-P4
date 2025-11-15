@@ -35,9 +35,10 @@ def main():
     gradientTest()
 
     ## TO-DO: descoment both test and create the needed code to execute them.
-    
+    x,y = load_data('data/ex3data1.mat')
+
     #Test 2
-    #MLP_test()
+    MLP_test()
 
     
 

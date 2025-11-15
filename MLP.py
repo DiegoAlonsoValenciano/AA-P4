@@ -221,6 +221,10 @@ class MLP:
         for i in range(numIte):
             J = 0
             ##TO-DO: calculate gradients and update both theta matrix
+            J,g1,g2=self.compute_gradients(x, y, lambda_)
+            self.theta1-=alpha*g1
+            self.theta2-=alpha*g2
+            Jhistory.append(J)
             if verbose > 0 :
                 if i % verbose == 0 or i == (numIte-1):
                     print(f"Iteration {(i+1):6}: Cost {float(J):8.4f}   ")
