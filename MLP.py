@@ -20,9 +20,9 @@ class MLP:
         self.inputLayer = inputLayer
         self.hidenLayer = hidenLayer
         self.outputLayer = outputLayer
-        self.theta1 = np.random.uniform(-epislom,epislom,size=(hidenLayer,inputLayer+1))
-        self.theta2 = np.random.uniform(-epislom,epislom,size=(outputLayer,hidenLayer+1))
-
+        t1 = np.random.uniform(-epislom,epislom, [hidenLayer,inputLayer+1])
+        t2 = np.random.uniform(-epislom,epislom,[outputLayer,hidenLayer+1])
+        self.new_trained(t1,t2)
         """
     Reset the theta matrix created in the constructor by both theta matrix manualy loaded.
 
@@ -76,15 +76,11 @@ class MLP:
     z2,z3 (array_like): signal fuction of two last layers
     """
     def feedforward(self,x):
-        a1 = x
-        X1s = np.hstack([np.ones((self._size(a1), 1)), a1])
-        X1s = np.transpose(X1s)
-        z2 = self.theta1 @ X1s
+        a1 = np.hstack([np.ones((self._size(x), 1)), x])
+        z2 = a1 @ self.theta1.T 
         a2 = self._sigmoid(z2)
-        X2s = np.transpose(a2)
-        X2s = np.hstack([np.ones((self._size(X2s), 1)), X2s])
-        X2s = np.transpose(X2s)
-        z3 = self.theta2 @ X2s
+        a2 = np.hstack([np.ones((self._size(a2), 1)), a2])
+        z3 = a2 @ self.theta2.T
         a3 = self._sigmoid(z3)
         return a1,a2,a3,z2,z3 # devolvemos a parte de las activaciones, los valores sin ejecutar la función de activación
 
@@ -101,16 +97,15 @@ class MLP:
 	J (scalar): the cost.
     """
     def compute_cost(self, yPrime,y, lambda_): # es una función interna por eso empieza por _
-        p1 = y @ np.log(yPrime)
-        p2 = (1 - y) @ (np.log((1-yPrime)))
+        p1 = y * np.log(yPrime)
+        p2 = (1 - y) * (np.log((1-yPrime)))
 
         su = p1+p2
-        su = np.sum(su,axis=0).tolist()
-        m = np.size(su)
+        su = np.sum(su)
 
-        sum = np.sum(su)
+        m = self._size(y)
 
-        dev = (-1/m) * sum
+        dev = (-1/m) * su
         dev = dev + self._regularizationL2Cost(m,lambda_)
         return dev
     
@@ -144,26 +139,25 @@ class MLP:
     grad1, grad2: the gradient matrix (same shape than theta1 and theta2)
     """
     def compute_gradients(self, x, y, lambda_):
-        m = self._size(x)
         a1,a2,a3,z2,z3 = self.feedforward(x)
 
-        J = self.compute_cost(a3,y,lambda_)
+        J=self.compute_cost(a3,y,lambda_)
+        dlt3=a3-y
+        
+        dlt2=np.dot(dlt3,self.theta2)*self._sigmoidPrime(a2)
+        
+        grad1=np.zeros(self.theta1.shape)
+        grad2=np.zeros(self.theta2.shape)
 
-        dlt3 = a3.T-y
-        g2 = self._sigmoidPrime(a2)
-        teta2 = np.delete(self.theta2,0,axis=1)
-        #dlt2 = dlt3 @ teta2 * g2 5*3
-        dlt2 =  g2 @ (dlt3 @ self.theta2)
-        g1 = self._sigmoidPrime(a1)
-        teta1 = np.delete(self.theta1,0,axis=1)
-        ##TO-DO
-        m1 = self._size(a1)
-        m2 = self._size(a2)
+        m = self._size(x)
 
-        grad1 = (1/m1)*(dlt2[:,:1].T @ a1)
-        grad2 = (1/m2)*(dlt3.T @ a2)
-        grad1[:,:1]  =+ self._regularizationL2Gradient(self.theta1,lambda_,m)
-        grad2[:,:1]  = grad2[:,:1] + self._regularizationL2Gradient(self.theta2,lambda_,m)
+        g1=np.dot(dlt2[:, 1:].T,a1)/m
+        g2=np.dot(dlt3.T,a2)/m
+
+        g1[:,1:] = g1[:,1:]+self._regularizationL2Gradient(self.theta1,lambda_,m)
+        grad1+= g1
+        g2[:,1:] = g2[:,1:]+self._regularizationL2Gradient(self.theta2,lambda_,m)
+        grad2+=g2
 
         return (J, grad1, grad2)
     
@@ -192,8 +186,8 @@ class MLP:
 
         #teta = np.delete(theta,0,axis=1)
         
-        print(theta[:,:1])
-        L2 = (theta[:,:1] * lambda_)/m
+        print(theta[:,1:])
+        L2 = theta[:,1:] * (lambda_/m)
         return L2
     
     
@@ -211,18 +205,14 @@ class MLP:
 
     def _regularizationL2Cost(self, m, lambda_):
 
-        teta1 = np.delete(self.theta1,0,axis=1)
-        teta1 = self.theta1 * self.theta1
-        teta1 = np.sum(teta1,axis=0)
-        teta1 = np.sum(teta1)
-
-        teta2 = np.delete(self.theta2,0,axis=1)
-        teta2 = self.theta2 * self.theta2
-        teta2 = np.sum(teta2,axis=0)
-        teta2 = np.sum(teta2)
-
-        su = teta1+teta2
-        L2 = lambda_*(1/(2*m)) * su
+        t1 =self.theta1[:, 1:]
+        t2= self.theta2[:, 1:]
+        t1=t1**2
+        t2=t2**2
+        t1=t1.sum()
+        t2=t2.sum()
+        L2= t1+t2
+        L2= ((L2*lambda_)/(2*m))
         return L2
     
     
