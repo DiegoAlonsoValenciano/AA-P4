@@ -2,6 +2,7 @@ from MLP import MLP, target_gradient, costNN, MLP_backprop_predict
 from utils import load_data, load_weights,one_hot_encoding, accuracy
 from public_test import checkNNGradients,MLP_test_step
 from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
 
 
 
@@ -39,11 +40,17 @@ def main():
     x_train, x_test, y_train, y_test = train_test_split(x,y,test_size=0.33,random_state=0)
 
     #Pasamos los datos de salida de entrenamiento a one hot encoding
-    y_train = one_hot_encoding(y_train)
+    y_train_OneHot = one_hot_encoding(y_train)
 
     #Test 2
-    MLP_test(x_train,y_train, x_test, y_test)
+    MLP_test(x_train,y_train_OneHot, x_test, y_test)
 
+
+    #Test con MLPClassifier (hay que pasar y_train sin formato One_Hot_Encoding)
+    clf = MLPClassifier(hidden_layer_sizes=(5,), alpha= 1,random_state=0, max_iter=2000,epsilon=0.12).fit(x_train, y_train)
+    score = clf.score(x_test,y_test)
+    print("Accuracy de sklearn classifier con lambda = 1:", score)
+ 
     
 
 main()
