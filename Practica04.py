@@ -26,6 +26,24 @@ def MLP_test(X_train,y_train, X_test, y_test):
     print("Test 3 Calculando para lambda = 1")
     MLP_test_step(MLP_backprop_predict,1,X_train,y_train,X_test,y_test,1,2000,0.92667,2000/10)
 
+def MLP_test_SKLearn(X_train,y_train, X_test, y_test):
+    print("Test de SKLearn")
+    print("Test 1 Calculando para lambda = 0")
+    clf = MLPClassifier(activation='logistic', verbose=False, alpha= 0,random_state=0, max_iter=2000,epsilon=0.12,learning_rate_init=0.01).fit(X_train, y_train)
+    score = clf.score(X_test,y_test)
+    print("Accuracy de sklearn classifier con lambda = 0:", score)
+
+    print("Test 2 Calculando para lambda = 0.5")
+    clf = MLPClassifier(activation='logistic', verbose=False, alpha= 0.5,random_state=0, max_iter=2000,epsilon=0.12,learning_rate_init=0.01).fit(X_train, y_train)
+    score = clf.score(X_test,y_test)
+    print("Accuracy de sklearn classifier con lambda = 0.5:", score)
+
+ 
+    print("Test 3 Calculando para lambda = 1")
+    clf = MLPClassifier(activation='logistic', verbose=False , alpha= 1,random_state=0, max_iter=2000,epsilon=0.12,learning_rate_init=0.01).fit(X_train, y_train)
+    score = clf.score(X_test,y_test)
+    print("Accuracy de sklearn classifier con lambda = 1:", score)
+
 
 
 def main():
@@ -45,12 +63,7 @@ def main():
     #Test 2
     MLP_test(x_train,y_train_OneHot, x_test, y_test)
 
-
     #Test con MLPClassifier (hay que pasar y_train sin formato One_Hot_Encoding)
-    clf = MLPClassifier(hidden_layer_sizes=(5,), alpha= 1,random_state=0, max_iter=2000,epsilon=0.12).fit(x_train, y_train)
-    score = clf.score(x_test,y_test)
-    print("Accuracy de sklearn classifier con lambda = 1:", score)
- 
+    MLP_test_SKLearn(x_train,y_train, x_test, y_test)
     
-
 main()
